@@ -58,6 +58,13 @@ public class ShortFormJpaAdapter implements ShortFormRepositoryPort {
     }
 
     @Override
+    public List<ShortForm> findAllByCreatorId(CreatorId creatorId) {
+        return shortFormJpaRepository.findAllByCreatorIdAndIsDeletedFalse(creatorId.value()).stream()
+                .map(shortFormMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public void softDeleteByCreatorId(CreatorId creatorId) {
         shortFormJpaRepository.softDeleteByCreatorId(creatorId.value());
     }

@@ -4,6 +4,8 @@ spring:
   jackson:
     property-naming-strategy: SNAKE_CASE
   grpc:
+    server:
+      port: ${GRPC_SERVER_PORT}
     client:
       channels:
         creator:
