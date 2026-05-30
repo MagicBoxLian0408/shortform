@@ -35,6 +35,7 @@ public class ShortFormMapper {
                 .commentCount(entity.getCommentCount())
                 .viewCount(entity.getViewCount())
                 .isDeleted(entity.isDeleted())
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 }

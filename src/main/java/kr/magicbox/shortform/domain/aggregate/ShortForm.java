@@ -8,6 +8,8 @@ import kr.magicbox.shortform.domain.vo.ShortFormId;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.Instant;
+
 @Getter
 public class ShortForm {
 
@@ -23,6 +25,7 @@ public class ShortForm {
     private Long commentCount;
     private Long viewCount;
     private boolean isDeleted;
+    private Instant createdAt;
 
     @Builder(builderMethodName = "createBuilder", builderClassName = "CreateBuilder")
     public ShortForm(CreatorId creatorId, String title, String description, String videoUuid,
@@ -45,7 +48,7 @@ public class ShortForm {
     @Builder(builderMethodName = "reconstructBuilder", builderClassName = "ReconstructBuilder")
     public ShortForm(ShortFormId id, CreatorId creatorId, String title, String description,
                      String videoUuid, String thumbnailUuid, MagicGenre genre, Visibility visibility,
-                     Long likeCount, Long commentCount, Long viewCount, boolean isDeleted) {
+                     Long likeCount, Long commentCount, Long viewCount, boolean isDeleted, Instant createdAt) {
         validateReconstruct(id, creatorId, title, videoUuid, thumbnailUuid, genre, visibility);
         this.id = id;
         this.creatorId = creatorId;
@@ -59,6 +62,7 @@ public class ShortForm {
         this.commentCount = commentCount;
         this.viewCount = viewCount;
         this.isDeleted = isDeleted;
+        this.createdAt = createdAt;
     }
 
     public void update(String title, String description, String videoUuid, String thumbnailUuid,

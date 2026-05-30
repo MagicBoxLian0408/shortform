@@ -24,6 +24,8 @@ public interface ShortFormJpaRepository extends JpaRepository<ShortFormEntity, L
 
     List<ShortFormEntity> findByCreatorIdAndIdLessThanAndIsDeletedFalseOrderByIdDesc(Long creatorId, Long cursorId, Pageable pageable);
 
+    List<ShortFormEntity> findAllByCreatorIdAndIsDeletedFalse(Long creatorId);
+
     @Modifying
     @Query("UPDATE ShortFormEntity s SET s.isDeleted = true WHERE s.creatorId = :creatorId AND s.isDeleted = false")
     void softDeleteByCreatorId(@Param("creatorId") Long creatorId);
