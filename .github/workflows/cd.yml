@@ -63,5 +63,5 @@ jobs:
           sed -i "s|image: ${{ env.IMAGE_NAME }}:.*|image: ${{ env.IMAGE_NAME }}:${{ github.sha }}|" shortform/deployment.yaml
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
-          git commit -am "chore(media): update image to ${{ github.sha }}"
+          git commit -am "chore(shortform): update image to ${{ github.sha }}"
           git push
