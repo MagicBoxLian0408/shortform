@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface ShortFormInboxRepository extends JpaRepository<ShortFormInboxEntity, Long> {
 
-    boolean existsByKafkaKey(String kafkaKey);
+    boolean existsByKey(String key);
 
     Optional<ShortFormInboxEntity> findByTopicAndPartitionAndOffset(String topic, Integer partition, Long offset);
 }

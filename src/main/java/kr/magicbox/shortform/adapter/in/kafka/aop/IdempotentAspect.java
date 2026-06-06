@@ -33,14 +33,14 @@ public class IdempotentAspect {
         ConsumerRecord<String, ?> consumerRecord = extractRecord(pjp);
         
         InboxEvent event = (InboxEvent) consumerRecord.value();
-        String kafkaKey = consumerRecord.key();
+        String key = consumerRecord.key();
         Instant occurredAt = event.occurredAt();
 
         if (isTooOld(occurredAt)) {
-            log.warn("[Inbox] 만료된 메시지 DEAD_LETTERED 처리. kafkaKey={}, occurredAt={}", kafkaKey, occurredAt);
+            log.warn("[Inbox] 만료된 메시지 DEAD_LETTERED 처리. key={}, occurredAt={}", key, occurredAt);
             transactionTemplate.executeWithoutResult(status ->
                 shortFormInboxRepository.save(ShortFormInboxEntity.builder()
-                        .kafkaKey(kafkaKey)
+                        .key(key)
                         .topic(consumerRecord.topic())
                         .partition(consumerRecord.partition())
                         .offset(consumerRecord.offset())
@@ -52,12 +52,12 @@ public class IdempotentAspect {
         }
 
         return transactionTemplate.execute(status -> {
-            if (shortFormInboxRepository.existsByKafkaKey(kafkaKey)) {
-                log.warn("[Inbox] 중복 메시지 폐기. kafkaKey={}", kafkaKey);
+            if (shortFormInboxRepository.existsByKey(key)) {
+                log.warn("[Inbox] 중복 메시지 폐기. key={}", key);
                 return null;
             }
             ShortFormInboxEntity inbox = shortFormInboxRepository.save(ShortFormInboxEntity.builder()
-                    .kafkaKey(kafkaKey)
+                    .key(key)
                     .topic(consumerRecord.topic())
                     .partition(consumerRecord.partition())
                     .offset(consumerRecord.offset())

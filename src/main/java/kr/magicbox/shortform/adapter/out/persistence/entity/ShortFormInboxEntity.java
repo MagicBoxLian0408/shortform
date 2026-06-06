@@ -19,7 +19,7 @@ import java.time.Instant;
 public class ShortFormInboxEntity extends BaseEntity {
 
     @Column(nullable = false, unique = true)
-    private String kafkaKey;
+    private String key;
 
     @Column(nullable = false)
     private String topic;
@@ -38,9 +38,9 @@ public class ShortFormInboxEntity extends BaseEntity {
     private Instant occurredAt;
 
     @Builder
-    public ShortFormInboxEntity(String kafkaKey, String topic, Integer partition, Long offset,
+    public ShortFormInboxEntity(String key, String topic, Integer partition, Long offset,
                                 ShortFormInboxStatus status, Instant occurredAt) {
-        this.kafkaKey = kafkaKey;
+        this.key = key;
         this.topic = topic;
         this.partition = partition;
         this.offset = offset;
