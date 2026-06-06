@@ -33,7 +33,6 @@ public class IdempotentAspect {
         ConsumerRecord<String, ?> consumerRecord = extractRecord(pjp);
         String key = consumerRecord.key();
         InboxEvent event = (InboxEvent) consumerRecord.value();
-        String key = consumerRecord.key();
         Instant occurredAt = event.occurredAt();
 
         if (isTooOld(occurredAt)) {
