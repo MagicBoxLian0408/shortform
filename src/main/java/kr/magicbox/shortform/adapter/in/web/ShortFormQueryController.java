@@ -7,14 +7,18 @@ import kr.magicbox.shortform.adapter.in.web.validation.CursorSize;
 import kr.magicbox.shortform.application.dto.query.GetAllShortFormsQuery;
 import kr.magicbox.shortform.application.dto.query.GetShortFormQuery;
 import kr.magicbox.shortform.application.dto.query.GetShortFormsByCreatorQuery;
+import kr.magicbox.shortform.application.dto.query.GetSubscribedShortFormsQuery;
 import kr.magicbox.shortform.application.dto.result.ShortFormResult;
 import kr.magicbox.shortform.application.port.in.GetAllShortFormsUseCase;
 import kr.magicbox.shortform.application.port.in.GetShortFormUseCase;
 import kr.magicbox.shortform.application.port.in.GetShortFormsByCreatorUseCase;
+import kr.magicbox.shortform.application.port.in.GetSubscribedShortFormsUseCase;
 import kr.magicbox.shortform.domain.vo.CreatorId;
 import kr.magicbox.shortform.domain.vo.ShortFormId;
+import kr.magicbox.shortform.domain.vo.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +36,7 @@ public class ShortFormQueryController {
     private final GetShortFormUseCase getShortFormUseCase;
     private final GetAllShortFormsUseCase getAllShortFormsUseCase;
     private final GetShortFormsByCreatorUseCase getShortFormsByCreatorUseCase;
+    private final GetSubscribedShortFormsUseCase getSubscribedShortFormsUseCase;
 
     @GetMapping("/{id}")
     public ResponseEntity<ShortFormResponse> getShortForm(@PathVariable Long id) {
@@ -58,6 +63,20 @@ public class ShortFormQueryController {
                     .map(ShortFormResponse::from)
                     .toList();
         }
+        return ResponseEntity.ok(CursorResponse.of(contents, size, r -> r.id()));
+    }
+
+    @GetMapping("/subscribed")
+    public ResponseEntity<CursorResponse<ShortFormResponse>> getSubscribedShortForms(
+            @AuthenticationPrincipal UserId userId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = CursorConstants.DEFAULT_SIZE) @CursorSize Integer size
+    ) {
+        List<ShortFormResponse> contents = getSubscribedShortFormsUseCase.getSubscribedShortForms(
+                        GetSubscribedShortFormsQuery.of(userId, cursor, size))
+                .stream()
+                .map(ShortFormResponse::from)
+                .toList();
         return ResponseEntity.ok(CursorResponse.of(contents, size, r -> r.id()));
     }
 }

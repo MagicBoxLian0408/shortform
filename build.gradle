@@ -38,6 +38,7 @@ dependencies {
     implementation 'org.springframework.grpc:spring-grpc-client-spring-boot-starter'
     implementation 'org.springframework.grpc:spring-grpc-server-spring-boot-starter'
     implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'com.google.protobuf:protobuf-java:4.34.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
