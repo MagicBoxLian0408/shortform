@@ -18,7 +18,7 @@ import java.time.Instant;
 @Table(name = "shortform_inbox")
 public class ShortFormInboxEntity extends BaseEntity {
 
-    @Column(name = "inbox_key", nullable = false, unique = true)
+    @Column(name = "event_key", nullable = false, unique = true)
     private String key;
 
     @Column(nullable = false)
