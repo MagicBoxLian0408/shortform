@@ -12,6 +12,7 @@ import java.time.Instant;
 public record ShortFormResult(
         ShortFormId id,
         CreatorId creatorId,
+        String creatorNickname,
         String title,
         String description,
         String videoUuid,
