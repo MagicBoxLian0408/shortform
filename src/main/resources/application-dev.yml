@@ -36,6 +36,8 @@ spring:
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
         spring.json.trusted.packages: "kr.magicbox.shortform.adapter.in.kafka.event"
         spring.json.type.mapping: creator-revoked:kr.magicbox.shortform.adapter.in.kafka.event.CreatorRevokedEvent
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     retry:
       topic:
         backoff:
