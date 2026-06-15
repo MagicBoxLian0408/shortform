@@ -11,6 +11,7 @@ import java.time.Instant;
 public record ShortFormResponse(
         Long id,
         Long creatorId,
+        String creatorNickname,
         String title,
         String description,
         String videoUuid,
@@ -26,6 +27,7 @@ public record ShortFormResponse(
         return ShortFormResponse.builder()
                 .id(result.id().value())
                 .creatorId(result.creatorId().value())
+                .creatorNickname(result.creatorNickname())
                 .title(result.title())
                 .description(result.description())
                 .videoUuid(result.videoUuid())

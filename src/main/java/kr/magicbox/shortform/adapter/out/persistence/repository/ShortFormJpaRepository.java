@@ -28,7 +28,8 @@ public interface ShortFormJpaRepository extends JpaRepository<ShortFormEntity, L
 
     List<ShortFormEntity> findByCreatorIdInAndIsDeletedFalseOrderByIdDesc(List<Long> creatorIds, Pageable pageable);
 
-    List<ShortFormEntity> findByCreatorIdInAndIdLessThanAndIsDeletedFalseOrderByIdDesc(List<Long> creatorIds, Long cursorId, Pageable pageable);
+    @Query("SELECT s FROM ShortFormEntity s WHERE s.creatorId IN :creatorIds AND s.id < :cursorId AND s.isDeleted = false ORDER BY s.id DESC")
+    List<ShortFormEntity> findByCreatorIdInAndIdLessThanAndIsDeletedFalseOrderByIdDesc(@Param("creatorIds") List<Long> creatorIds, @Param("cursorId") Long cursorId, Pageable pageable);
 
     @Modifying
     @Query("UPDATE ShortFormEntity s SET s.isDeleted = true WHERE s.creatorId = :creatorId AND s.isDeleted = false")
