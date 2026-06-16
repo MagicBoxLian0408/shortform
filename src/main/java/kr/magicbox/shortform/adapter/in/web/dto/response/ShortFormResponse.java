@@ -10,8 +10,7 @@ import java.time.Instant;
 @Builder
 public record ShortFormResponse(
         Long id,
-        Long creatorId,
-        String creatorNickname,
+        CreatorResponse creator,
         String title,
         String description,
         String videoUuid,
@@ -23,11 +22,17 @@ public record ShortFormResponse(
         Long viewCount,
         Instant createdAt
 ) {
+    @Builder
+    public record CreatorResponse(Long id, String nickname, String profileImage) {}
+
     public static ShortFormResponse from(ShortFormResult result) {
         return ShortFormResponse.builder()
                 .id(result.id().value())
-                .creatorId(result.creatorId().value())
-                .creatorNickname(result.creatorNickname())
+                .creator(new CreatorResponse(
+                        result.creator().id(),
+                        result.creator().nickname(),
+                        result.creator().profileImage()
+                ))
                 .title(result.title())
                 .description(result.description())
                 .videoUuid(result.videoUuid())

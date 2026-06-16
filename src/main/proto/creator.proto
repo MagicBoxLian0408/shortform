@@ -9,6 +9,7 @@ option java_multiple_files = true;
 service CreatorService {
   rpc GetCreatorIdByUserId(GetCreatorIdByUserIdRequest) returns (GetCreatorIdByUserIdResponse);
   rpc GetCreatorNicknameByCreatorId(GetCreatorNicknameByCreatorIdRequest) returns (GetCreatorNicknameByCreatorIdResponse);
+  rpc GetCreatorProfileByCreatorId(GetCreatorProfileByCreatorIdRequest) returns (GetCreatorProfileByCreatorIdResponse);
 }
 
 message GetCreatorIdByUserIdRequest {
@@ -25,4 +26,14 @@ message GetCreatorNicknameByCreatorIdRequest {
 
 message GetCreatorNicknameByCreatorIdResponse {
   string nickname = 1;
+}
+
+message GetCreatorProfileByCreatorIdRequest {
+  int64 creator_id = 1;
+}
+
+message GetCreatorProfileByCreatorIdResponse {
+  int64 creator_id = 1;
+  string nickname = 2;
+  string profile_image_url = 3;
 }
