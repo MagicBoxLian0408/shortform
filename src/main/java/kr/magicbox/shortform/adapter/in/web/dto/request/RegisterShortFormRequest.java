@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import kr.magicbox.shortform.application.dto.command.RegisterShortFormCommand;
 import kr.magicbox.shortform.domain.enums.MagicGenre;
-import kr.magicbox.shortform.domain.enums.Visibility;
 import kr.magicbox.shortform.domain.vo.UserId;
 import lombok.Builder;
 
@@ -15,8 +14,7 @@ public record RegisterShortFormRequest(
         String description,
         @NotBlank(message = "영상 UUID는 필수입니다.") String videoUuid,
         @NotBlank(message = "썸네일 UUID는 필수입니다.") String thumbnailUuid,
-        @NotNull(message = "장르는 필수입니다.") MagicGenre genre,
-        @NotNull(message = "공개 여부는 필수입니다.") Visibility visibility
+        @NotNull(message = "장르는 필수입니다.") MagicGenre genre
 ) {
     public RegisterShortFormCommand toCommand(UserId userId) {
         return RegisterShortFormCommand.builder()
@@ -26,7 +24,6 @@ public record RegisterShortFormRequest(
                 .videoUuid(videoUuid)
                 .thumbnailUuid(thumbnailUuid)
                 .genre(genre)
-                .visibility(visibility)
                 .build();
     }
 }

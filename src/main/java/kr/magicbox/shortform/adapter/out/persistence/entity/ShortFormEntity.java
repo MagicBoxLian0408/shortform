@@ -8,7 +8,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import kr.magicbox.shortform.domain.aggregate.ShortForm;
 import kr.magicbox.shortform.domain.enums.MagicGenre;
-import kr.magicbox.shortform.domain.enums.Visibility;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,10 +38,6 @@ public class ShortFormEntity extends BaseEntity {
     @Column(name = "genre", nullable = false)
     private MagicGenre genre;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "visibility", nullable = false)
-    private Visibility visibility;
-
     @Column(name = "like_count", nullable = false)
     private Long likeCount;
 
@@ -60,14 +55,13 @@ public class ShortFormEntity extends BaseEntity {
 
     @Builder
     public ShortFormEntity(Long creatorId, String title, String description, String videoUuid,
-                           String thumbnailUuid, MagicGenre genre, Visibility visibility) {
+                           String thumbnailUuid, MagicGenre genre) {
         this.creatorId = creatorId;
         this.title = title;
         this.description = description;
         this.videoUuid = videoUuid;
         this.thumbnailUuid = thumbnailUuid;
         this.genre = genre;
-        this.visibility = visibility;
         this.likeCount = 0L;
         this.commentCount = 0L;
         this.viewCount = 0L;
@@ -80,7 +74,6 @@ public class ShortFormEntity extends BaseEntity {
         this.videoUuid = domain.getVideoUuid();
         this.thumbnailUuid = domain.getThumbnailUuid();
         this.genre = domain.getGenre();
-        this.visibility = domain.getVisibility();
         this.isDeleted = domain.isDeleted();
     }
 

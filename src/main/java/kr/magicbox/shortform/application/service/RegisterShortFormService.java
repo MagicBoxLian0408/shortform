@@ -35,7 +35,6 @@ public class RegisterShortFormService implements RegisterShortFormUseCase {
                 .videoUuid(command.videoUuid())
                 .thumbnailUuid(command.thumbnailUuid())
                 .genre(command.genre())
-                .visibility(command.visibility())
                 .build();
 
         Long savedId = shortFormRepositoryPort.save(shortForm);

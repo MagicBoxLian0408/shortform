@@ -2,7 +2,6 @@ package kr.magicbox.shortform.adapter.in.web.dto.response;
 
 import kr.magicbox.shortform.application.dto.result.ShortFormResult;
 import kr.magicbox.shortform.domain.enums.MagicGenre;
-import kr.magicbox.shortform.domain.enums.Visibility;
 import lombok.Builder;
 
 import java.time.Instant;
@@ -16,7 +15,6 @@ public record ShortFormResponse(
         String videoUuid,
         String thumbnailUuid,
         MagicGenre genre,
-        Visibility visibility,
         Long likeCount,
         Long commentCount,
         Long viewCount,
@@ -38,7 +36,6 @@ public record ShortFormResponse(
                 .videoUuid(result.videoUuid())
                 .thumbnailUuid(result.thumbnailUuid())
                 .genre(result.genre())
-                .visibility(result.visibility())
                 .likeCount(result.likeCount())
                 .commentCount(result.commentCount())
                 .viewCount(result.viewCount())
