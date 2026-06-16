@@ -36,7 +36,7 @@ public class UpdateShortFormService implements UpdateShortFormUseCase {
         String beforeTitle = shortForm.getTitle();
 
         shortForm.update(command.title(), command.description(), command.videoUuid(),
-                command.thumbnailUuid(), command.genre(), command.visibility());
+                command.thumbnailUuid(), command.genre());
 
         shortFormRepositoryPort.update(shortForm);
 

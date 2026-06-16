@@ -39,7 +39,6 @@ public class GetShortFormService implements GetShortFormUseCase {
                 .videoUuid(shortForm.getVideoUuid())
                 .thumbnailUuid(shortForm.getThumbnailUuid())
                 .genre(shortForm.getGenre())
-                .visibility(shortForm.getVisibility())
                 .likeCount(shortForm.getLikeCount())
                 .commentCount(shortForm.getCommentCount())
                 .viewCount(shortForm.getViewCount())

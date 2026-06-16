@@ -17,7 +17,6 @@ public class ShortFormMapper {
                 .videoUuid(domain.getVideoUuid())
                 .thumbnailUuid(domain.getThumbnailUuid())
                 .genre(domain.getGenre())
-                .visibility(domain.getVisibility())
                 .build();
     }
 
@@ -30,7 +29,6 @@ public class ShortFormMapper {
                 .videoUuid(entity.getVideoUuid())
                 .thumbnailUuid(entity.getThumbnailUuid())
                 .genre(entity.getGenre())
-                .visibility(entity.getVisibility())
                 .likeCount(entity.getLikeCount())
                 .commentCount(entity.getCommentCount())
                 .viewCount(entity.getViewCount())
