@@ -10,7 +10,10 @@ import kr.magicbox.shortform.domain.vo.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -44,5 +47,11 @@ public class ShortFormLikeJpaAdapter implements ShortFormLikeRepositoryPort {
     @Override
     public void delete(ShortFormLike like) {
         shortFormLikeJpaRepository.deleteById(like.getId().value());
+    }
+
+    @Override
+    public Set<Long> findLikedShortFormIds(List<ShortFormId> shortFormIds, UserId userId) {
+        List<Long> ids = shortFormIds.stream().map(ShortFormId::value).toList();
+        return shortFormLikeJpaRepository.findLikedShortFormIds(ids, userId.value());
     }
 }
