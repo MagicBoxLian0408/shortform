@@ -18,6 +18,12 @@ import kr.magicbox.shortform.grpc.creator.GetCreatorNicknameByCreatorIdRequest;
 import kr.magicbox.shortform.grpc.creator.GetCreatorNicknameByCreatorIdResponse;
 import kr.magicbox.shortform.grpc.creator.GetCreatorProfileByCreatorIdRequest;
 import kr.magicbox.shortform.grpc.creator.GetCreatorProfileByCreatorIdResponse;
+import kr.magicbox.shortform.grpc.creator.GetCreatorProfilesBatchRequest;
+import kr.magicbox.shortform.grpc.creator.GetCreatorProfilesBatchResponse;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -100,6 +106,30 @@ public class CreatorGrpcAdapter implements CreatorIdQueryPort, CreatorNicknameQu
             throw new CreatorNotFoundException();
         }
         log.warn("크리에이터 서비스 연결 실패");
+        throw new CreatorServiceUnavailableException(throwable);
+    }
+
+    @Override
+    @CircuitBreaker(name = "creatorService", fallbackMethod = "getCreatorProfilesBatchFallback")
+    public Map<Long, CreatorProfile> getCreatorProfilesBatch(List<CreatorId> creatorIds) {
+        GetCreatorProfilesBatchRequest request = GetCreatorProfilesBatchRequest.newBuilder()
+                .addAllCreatorIds(creatorIds.stream().map(CreatorId::value).toList())
+                .build();
+
+        CreatorServiceGrpc.CreatorServiceBlockingStub stub = CreatorServiceGrpc.newBlockingStub(creatorManagedChannel)
+                .withDeadlineAfter(2, TimeUnit.SECONDS);
+        GetCreatorProfilesBatchResponse response = stub.getCreatorProfilesBatch(request);
+
+        return response.getProfilesList().stream()
+                .collect(Collectors.toMap(
+                        p -> p.getCreatorId(),
+                        p -> new CreatorProfile(p.getCreatorId(), p.getNickname(), p.getProfileImageUrl())
+                ));
+    }
+
+    @SuppressWarnings("unused")
+    private Map<Long, CreatorProfile> getCreatorProfilesBatchFallback(List<CreatorId> creatorIds, Throwable throwable) {
+        log.warn("크리에이터 서비스 연결 실패 (batch)");
         throw new CreatorServiceUnavailableException(throwable);
     }
 }

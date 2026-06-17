@@ -7,12 +7,17 @@ import kr.magicbox.shortform.application.port.out.CreatorProfileQueryPort;
 import kr.magicbox.shortform.application.port.out.ShortFormLikeRepositoryPort;
 import kr.magicbox.shortform.application.port.out.ShortFormRepositoryPort;
 import kr.magicbox.shortform.application.port.out.SubscribedCreatorIdsQueryPort;
+import kr.magicbox.shortform.domain.aggregate.ShortForm;
+import kr.magicbox.shortform.domain.vo.CreatorId;
+import kr.magicbox.shortform.domain.vo.ShortFormId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -30,12 +35,25 @@ public class GetSubscribedShortFormsService implements GetSubscribedShortFormsUs
         if (creatorIds.isEmpty()) {
             return Collections.emptyList();
         }
-        return shortFormRepositoryPort.findByCreatorIdInByCursor(creatorIds, query.cursorId(), query.size() + 1)
-                .stream()
+
+        List<ShortForm> shortForms = shortFormRepositoryPort.findByCreatorIdInByCursor(
+                creatorIds, query.cursorId(), query.size() + 1);
+
+        List<CreatorId> distinctCreatorIds = shortForms.stream()
+                .map(ShortForm::getCreatorId)
+                .distinct()
+                .toList();
+        Map<Long, CreatorProfileQueryPort.CreatorProfile> profiles =
+                creatorProfileQueryPort.getCreatorProfilesBatch(distinctCreatorIds);
+
+        List<ShortFormId> shortFormIds = shortForms.stream().map(ShortForm::getId).toList();
+        Set<Long> likedIds = shortFormLikeRepositoryPort.findLikedShortFormIds(shortFormIds, query.userId());
+
+        return shortForms.stream()
                 .map(sf -> ShortFormResult.from(
                         sf,
-                        creatorProfileQueryPort.getCreatorProfile(sf.getCreatorId()),
-                        shortFormLikeRepositoryPort.existsByShortFormIdAndUserId(sf.getId(), query.userId())
+                        profiles.get(sf.getCreatorId().value()),
+                        likedIds.contains(sf.getId().value())
                 ))
                 .toList();
     }
