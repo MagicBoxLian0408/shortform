@@ -18,6 +18,11 @@ spring:
           negotiation-type: plaintext
           keep-alive-time: 30s
           keep-alive-timeout: 5s
+        user:
+          address: ${USER_SERVICE_URL}
+          negotiation-type: plaintext
+          keep-alive-time: 30s
+          keep-alive-timeout: 5s
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     listener:
@@ -73,4 +78,6 @@ resilience4j:
   timelimiter:
     instances:
       creatorService:
+        timeout-duration: 2s
+      userService:
         timeout-duration: 2s
