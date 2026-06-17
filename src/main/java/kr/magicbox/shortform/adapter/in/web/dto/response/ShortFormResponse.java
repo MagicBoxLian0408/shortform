@@ -18,6 +18,7 @@ public record ShortFormResponse(
         Long likeCount,
         Long commentCount,
         Long viewCount,
+        boolean isLiked,
         Instant createdAt
 ) {
     @Builder
@@ -39,6 +40,7 @@ public record ShortFormResponse(
                 .likeCount(result.likeCount())
                 .commentCount(result.commentCount())
                 .viewCount(result.viewCount())
+                .isLiked(result.isLiked())
                 .createdAt(result.createdAt())
                 .build();
     }
