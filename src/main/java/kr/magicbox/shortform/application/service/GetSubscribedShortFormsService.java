@@ -4,6 +4,7 @@ import kr.magicbox.shortform.application.dto.query.GetSubscribedShortFormsQuery;
 import kr.magicbox.shortform.application.dto.result.ShortFormResult;
 import kr.magicbox.shortform.application.port.in.GetSubscribedShortFormsUseCase;
 import kr.magicbox.shortform.application.port.out.CreatorProfileQueryPort;
+import kr.magicbox.shortform.application.port.out.ShortFormLikeRepositoryPort;
 import kr.magicbox.shortform.application.port.out.ShortFormRepositoryPort;
 import kr.magicbox.shortform.application.port.out.SubscribedCreatorIdsQueryPort;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class GetSubscribedShortFormsService implements GetSubscribedShortFormsUs
     private final SubscribedCreatorIdsQueryPort subscribedCreatorIdsQueryPort;
     private final ShortFormRepositoryPort shortFormRepositoryPort;
     private final CreatorProfileQueryPort creatorProfileQueryPort;
+    private final ShortFormLikeRepositoryPort shortFormLikeRepositoryPort;
 
     @Override
     @Transactional(readOnly = true)
@@ -30,7 +32,8 @@ public class GetSubscribedShortFormsService implements GetSubscribedShortFormsUs
         }
         return shortFormRepositoryPort.findByCreatorIdInByCursor(creatorIds, query.cursorId(), query.size() + 1)
                 .stream()
-                .map(sf -> GetShortFormService.toResult(sf, creatorProfileQueryPort.getCreatorProfile(sf.getCreatorId())))
+                .map(sf -> GetShortFormService.toResult(sf, creatorProfileQueryPort.getCreatorProfile(sf.getCreatorId()),
+                        shortFormLikeRepositoryPort.existsByShortFormIdAndUserId(sf.getId(), query.userId())))
                 .toList();
     }
 }
