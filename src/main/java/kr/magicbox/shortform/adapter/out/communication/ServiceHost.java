@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ServiceHost {
     CREATOR("creator"),
-    SUBSCRIBE("subscribe");
+    SUBSCRIBE("subscribe"),
+    USER("user");
 
     private final String hostName;
 }
