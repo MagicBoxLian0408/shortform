@@ -11,4 +11,12 @@ public class SystemError extends BaseException {
     public SystemError(String message, Throwable cause) {
         super(message, HttpStatus.INTERNAL_SERVER_ERROR, cause);
     }
+
+    public SystemError(String message, HttpStatus status) {
+        super(message, status);
+    }
+
+    public SystemError(String message, HttpStatus status, Throwable cause) {
+        super(message, status, cause);
+    }
 }
