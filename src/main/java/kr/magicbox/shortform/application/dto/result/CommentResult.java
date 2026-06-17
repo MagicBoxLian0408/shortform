@@ -10,6 +10,7 @@ import java.time.Instant;
 public record CommentResult(
         CommentId id,
         UserId userId,
+        String userNickname,
         String content,
         Instant createdAt
 ) {}

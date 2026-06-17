@@ -9,6 +9,7 @@ import java.time.Instant;
 public record CommentResponse(
         Long id,
         Long userId,
+        String userNickname,
         String content,
         Instant createdAt
 ) {
@@ -16,6 +17,7 @@ public record CommentResponse(
         return CommentResponse.builder()
                 .id(result.id().value())
                 .userId(result.userId().value())
+                .userNickname(result.userNickname())
                 .content(result.content())
                 .createdAt(result.createdAt())
                 .build();

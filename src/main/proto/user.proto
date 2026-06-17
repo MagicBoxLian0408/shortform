@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package magicbox.user.v1;
+
+option java_package = "kr.magicbox.shortform.grpc.user";
+option java_outer_classname = "UserServiceProto";
+option java_multiple_files = true;
+
+service UserService {
+  rpc GetUserNicknamesBatch(GetUserNicknamesBatchRequest) returns (GetUserNicknamesBatchResponse);
+}
+
+message GetUserNicknamesBatchRequest {
+  repeated int64 user_ids = 1;
+}
+
+message GetUserNicknamesBatchResponse {
+  map<int64, string> nicknames = 1;
+}
