@@ -18,6 +18,7 @@ public record ShortFormResult(
         Long likeCount,
         Long commentCount,
         Long viewCount,
+        boolean isLiked,
         Instant createdAt
 ) {
     @Builder

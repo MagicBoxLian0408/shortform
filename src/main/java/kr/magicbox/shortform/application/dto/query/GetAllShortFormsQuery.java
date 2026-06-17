@@ -1,8 +1,10 @@
 package kr.magicbox.shortform.application.dto.query;
 
-public record GetAllShortFormsQuery(Long cursorId, int size) {
+import kr.magicbox.shortform.domain.vo.UserId;
 
-    public static GetAllShortFormsQuery of(Long cursorId, int size) {
-        return new GetAllShortFormsQuery(cursorId, size);
+public record GetAllShortFormsQuery(Long cursorId, int size, UserId userId) {
+
+    public static GetAllShortFormsQuery of(Long cursorId, int size, UserId userId) {
+        return new GetAllShortFormsQuery(cursorId, size, userId);
     }
 }
