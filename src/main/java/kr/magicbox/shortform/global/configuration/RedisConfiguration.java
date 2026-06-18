@@ -11,6 +11,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
+import java.util.Map;
 
 @Configuration
 @EnableCaching
@@ -24,8 +25,12 @@ public class RedisConfiguration {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.json()))
                 .disableCachingNullValues();
 
+        RedisCacheConfiguration subscribedCreatorsConfig = defaultConfig
+                .entryTtl(Duration.ofSeconds(10));
+
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
+                .withInitialCacheConfigurations(Map.of("subscribed-creators", subscribedCreatorsConfig))
                 .build();
     }
 }
