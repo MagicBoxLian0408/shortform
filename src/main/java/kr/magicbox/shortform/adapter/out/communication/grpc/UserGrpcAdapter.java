@@ -1,9 +1,9 @@
 package kr.magicbox.shortform.adapter.out.communication.grpc;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.grpc.ManagedChannel;
-import io.grpc.StatusRuntimeException;
-import kr.magicbox.shortform.adapter.out.communication.grpc.exception.CreatorServiceUnavailableException;
 import kr.magicbox.shortform.application.port.out.UserNicknameQueryPort;
 import kr.magicbox.shortform.grpc.user.GetUserNicknamesBatchRequest;
 import kr.magicbox.shortform.grpc.user.GetUserNicknamesBatchResponse;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @RequiredArgsConstructor
@@ -28,24 +28,22 @@ public class UserGrpcAdapter implements UserNicknameQueryPort {
 
     @Override
     @CircuitBreaker(name = "userService", fallbackMethod = "getNicknamesBatchFallback")
-    public Map<Long, String> getNicknamesBatch(List<Long> userIds) {
+    @TimeLimiter(name = "userService", fallbackMethod = "getNicknamesBatchFallback")
+    public CompletableFuture<Map<Long, String>> getNicknamesBatch(List<Long> userIds) throws Exception {
         GetUserNicknamesBatchRequest request = GetUserNicknamesBatchRequest.newBuilder()
                 .addAllUserIds(userIds)
                 .build();
 
-        UserServiceGrpc.UserServiceBlockingStub stub = UserServiceGrpc.newBlockingStub(userManagedChannel)
-                .withDeadlineAfter(2, TimeUnit.SECONDS);
-        GetUserNicknamesBatchResponse response = stub.getUserNicknamesBatch(request);
+        UserServiceGrpc.UserServiceFutureStub stub = UserServiceGrpc.newFutureStub(userManagedChannel);
+        ListenableFuture<GetUserNicknamesBatchResponse> future = stub.getUserNicknamesBatch(request);
+        GetUserNicknamesBatchResponse response = future.get();
 
-        return response.getNicknamesMap();
+        return CompletableFuture.completedFuture(response.getNicknamesMap());
     }
 
     @SuppressWarnings("unused")
-    private Map<Long, String> getNicknamesBatchFallback(List<Long> userIds, Throwable throwable) {
+    private CompletableFuture<Map<Long, String>> getNicknamesBatchFallback(List<Long> userIds, Throwable throwable) {
         log.warn("유저 서비스 연결 실패");
-        if (throwable instanceof StatusRuntimeException) {
-            return Collections.emptyMap();
-        }
-        throw new CreatorServiceUnavailableException(throwable);
+        return CompletableFuture.completedFuture(Collections.emptyMap());
     }
 }

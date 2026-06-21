@@ -28,9 +28,7 @@ spring:
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
         spring.json.trusted.packages: "kr.magicbox.shortform.adapter.in.kafka.event"
         spring.json.type.mapping: creator-revoked:kr.magicbox.shortform.adapter.in.kafka.event.CreatorRevokedEvent
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    retry:
       topic:
         backoff:
           multiplier: 2
@@ -51,3 +49,39 @@ server:
 
 inbox:
   max-event-age-minutes: 5
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      creatorService:
+        register-health-indicator: true
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 20
+        minimum-number-of-calls: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+      userService:
+        register-health-indicator: true
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 20
+        minimum-number-of-calls: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+      subscribeService:
+        register-health-indicator: true
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 20
+        minimum-number-of-calls: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+  timelimiter:
+    instances:
+      creatorService:
+        timeout-duration: 2s
+      userService:
+        timeout-duration: 2s
+      subscribeService:
+        timeout-duration: 2s
