@@ -1,8 +1,6 @@
 package kr.magicbox.shortform.adapter.out.communication.grpc;
 
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.grpc.ManagedChannel;
@@ -40,9 +38,15 @@ public class CreatorGrpcAdapter implements CreatorIdQueryPort {
         CreatorServiceGrpc.CreatorServiceFutureStub stub = CreatorServiceGrpc.newFutureStub(creatorManagedChannel);
         ListenableFuture<GetCreatorIdByUserIdResponse> future = stub.getCreatorIdByUserId(request);
 
-        return Futures.toCompletableFuture(
-                Futures.transform(future, r -> new CreatorId(r.getCreatorId()), MoreExecutors.directExecutor())
-        );
+        CompletableFuture<CreatorId> result = new CompletableFuture<>();
+        future.addListener(() -> {
+            try {
+                result.complete(new CreatorId(future.get().getCreatorId()));
+            } catch (Exception e) {
+                result.completeExceptionally(e);
+            }
+        }, Runnable::run);
+        return result;
     }
 
     @SuppressWarnings("unused")
