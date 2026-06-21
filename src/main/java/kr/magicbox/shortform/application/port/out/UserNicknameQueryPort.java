@@ -5,5 +5,5 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public interface UserNicknameQueryPort {
-    CompletableFuture<Map<Long, String>> getNicknamesBatch(List<Long> userIds) throws Exception;
+    CompletableFuture<Map<Long, String>> getNicknamesBatch(List<Long> userIds);
 }

@@ -1,6 +1,8 @@
 package kr.magicbox.shortform.adapter.out.communication.grpc;
 
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.grpc.ManagedChannel;
@@ -29,16 +31,17 @@ public class UserGrpcAdapter implements UserNicknameQueryPort {
     @Override
     @CircuitBreaker(name = "userService", fallbackMethod = "getNicknamesBatchFallback")
     @TimeLimiter(name = "userService", fallbackMethod = "getNicknamesBatchFallback")
-    public CompletableFuture<Map<Long, String>> getNicknamesBatch(List<Long> userIds) throws Exception {
+    public CompletableFuture<Map<Long, String>> getNicknamesBatch(List<Long> userIds) {
         GetUserNicknamesBatchRequest request = GetUserNicknamesBatchRequest.newBuilder()
                 .addAllUserIds(userIds)
                 .build();
 
         UserServiceGrpc.UserServiceFutureStub stub = UserServiceGrpc.newFutureStub(userManagedChannel);
         ListenableFuture<GetUserNicknamesBatchResponse> future = stub.getUserNicknamesBatch(request);
-        GetUserNicknamesBatchResponse response = future.get();
 
-        return CompletableFuture.completedFuture(response.getNicknamesMap());
+        return Futures.toCompletableFuture(
+                Futures.transform(future, GetUserNicknamesBatchResponse::getNicknamesMap, MoreExecutors.directExecutor())
+        );
     }
 
     @SuppressWarnings("unused")

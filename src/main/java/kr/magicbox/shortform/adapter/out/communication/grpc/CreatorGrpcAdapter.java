@@ -1,6 +1,8 @@
 package kr.magicbox.shortform.adapter.out.communication.grpc;
 
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.grpc.ManagedChannel;
@@ -30,16 +32,17 @@ public class CreatorGrpcAdapter implements CreatorIdQueryPort {
     @Override
     @CircuitBreaker(name = "creatorService", fallbackMethod = "getCreatorIdFallback")
     @TimeLimiter(name = "creatorService", fallbackMethod = "getCreatorIdFallback")
-    public CompletableFuture<CreatorId> getCreatorId(UserId userId) throws Exception {
+    public CompletableFuture<CreatorId> getCreatorId(UserId userId) {
         GetCreatorIdByUserIdRequest request = GetCreatorIdByUserIdRequest.newBuilder()
                 .setUserId(userId.value())
                 .build();
 
         CreatorServiceGrpc.CreatorServiceFutureStub stub = CreatorServiceGrpc.newFutureStub(creatorManagedChannel);
         ListenableFuture<GetCreatorIdByUserIdResponse> future = stub.getCreatorIdByUserId(request);
-        GetCreatorIdByUserIdResponse response = future.get();
 
-        return CompletableFuture.completedFuture(new CreatorId(response.getCreatorId()));
+        return Futures.toCompletableFuture(
+                Futures.transform(future, r -> new CreatorId(r.getCreatorId()), MoreExecutors.directExecutor())
+        );
     }
 
     @SuppressWarnings("unused")

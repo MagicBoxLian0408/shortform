@@ -1,6 +1,8 @@
 package kr.magicbox.shortform.adapter.out.communication.grpc;
 
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.grpc.ManagedChannel;
@@ -31,16 +33,17 @@ public class SubscribeGrpcAdapter implements SubscribedCreatorIdsQueryPort {
     @Cacheable(value = "subscribed-creators", key = "#userId.value()")
     @CircuitBreaker(name = "subscribeService", fallbackMethod = "getSubscribedCreatorIdsFallback")
     @TimeLimiter(name = "subscribeService", fallbackMethod = "getSubscribedCreatorIdsFallback")
-    public CompletableFuture<List<Long>> getSubscribedCreatorIds(UserId userId) throws Exception {
+    public CompletableFuture<List<Long>> getSubscribedCreatorIds(UserId userId) {
         GetSubscribedCreatorIdsRequest request = GetSubscribedCreatorIdsRequest.newBuilder()
                 .setUserId(userId.value())
                 .build();
 
         SubscribeServiceGrpc.SubscribeServiceFutureStub stub = SubscribeServiceGrpc.newFutureStub(subscribeManagedChannel);
         ListenableFuture<GetSubscribedCreatorIdsResponse> future = stub.getSubscribedCreatorIds(request);
-        GetSubscribedCreatorIdsResponse response = future.get();
 
-        return CompletableFuture.completedFuture(response.getCreatorIdsList());
+        return Futures.toCompletableFuture(
+                Futures.transform(future, GetSubscribedCreatorIdsResponse::getCreatorIdsList, MoreExecutors.directExecutor())
+        );
     }
 
     @SuppressWarnings("unused")

@@ -31,7 +31,7 @@ public class DeleteShortFormService implements DeleteShortFormUseCase {
         ShortForm shortForm = shortFormRepositoryPort.findById(command.shortFormId())
                 .orElseThrow(ShortFormNotFoundException::new);
 
-        CreatorId creatorId = creatorIdQueryPort.getCreatorId(command.userId());
+        CreatorId creatorId = creatorIdQueryPort.getCreatorId(command.userId()).join();
         if (!shortForm.getCreatorId().equals(creatorId)) {
             throw new ShortFormUnauthorizedException();
         }

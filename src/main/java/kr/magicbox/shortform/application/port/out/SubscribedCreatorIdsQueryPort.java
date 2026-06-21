@@ -6,5 +6,5 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface SubscribedCreatorIdsQueryPort {
-    CompletableFuture<List<Long>> getSubscribedCreatorIds(UserId userId) throws Exception;
+    CompletableFuture<List<Long>> getSubscribedCreatorIds(UserId userId);
 }
