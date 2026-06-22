@@ -57,7 +57,8 @@ public class CreatorGrpcAdapter implements CreatorIdQueryPort, CreatorNicknameQu
 
     @Override
     @CircuitBreaker(name = "creatorService", fallbackMethod = "getCreatorProfileFallback")
-    public CreatorProfile getCreatorProfile(CreatorId creatorId) {
+    @TimeLimiter(name = "creatorService", fallbackMethod = "getCreatorProfileFallback")
+    public CompletableFuture<CreatorProfile> getCreatorProfile(CreatorId creatorId) {
         return GrpcFutures.toCompletable(
                 CreatorServiceGrpc.newFutureStub(creatorManagedChannel).getCreatorProfileByCreatorId(
                         GetCreatorProfileByCreatorIdRequest.newBuilder().setCreatorId(creatorId.value()).build()
@@ -66,12 +67,13 @@ public class CreatorGrpcAdapter implements CreatorIdQueryPort, CreatorNicknameQu
                 response.getCreatorId(),
                 response.getNickname(),
                 response.getProfileImageUrl()
-        )).join();
+        ));
     }
 
     @Override
     @CircuitBreaker(name = "creatorService", fallbackMethod = "getCreatorProfilesBatchFallback")
-    public Map<Long, CreatorProfile> getCreatorProfilesBatch(List<CreatorId> creatorIds) {
+    @TimeLimiter(name = "creatorService", fallbackMethod = "getCreatorProfilesBatchFallback")
+    public CompletableFuture<Map<Long, CreatorProfile>> getCreatorProfilesBatch(List<CreatorId> creatorIds) {
         List<Long> ids = creatorIds.stream().map(CreatorId::value).toList();
         return GrpcFutures.toCompletable(
                 CreatorServiceGrpc.newFutureStub(creatorManagedChannel).getCreatorProfilesBatch(
@@ -82,11 +84,11 @@ public class CreatorGrpcAdapter implements CreatorIdQueryPort, CreatorNicknameQu
                         p -> p.getCreatorId(),
                         p -> new CreatorProfile(p.getCreatorId(), p.getNickname(), p.getProfileImageUrl())
                 ))
-        ).join();
+        );
     }
 
     @SuppressWarnings("unused")
-    private CreatorProfile getCreatorProfileFallback(CreatorId creatorId, Throwable throwable) {
+    private CompletableFuture<CreatorProfile> getCreatorProfileFallback(CreatorId creatorId, Throwable throwable) {
         if (throwable instanceof StatusRuntimeException statusException
                 && statusException.getStatus().getCode() == Status.Code.NOT_FOUND) {
             throw new CreatorNotFoundException();
@@ -96,7 +98,7 @@ public class CreatorGrpcAdapter implements CreatorIdQueryPort, CreatorNicknameQu
     }
 
     @SuppressWarnings("unused")
-    private Map<Long, CreatorProfile> getCreatorProfilesBatchFallback(List<CreatorId> creatorIds, Throwable throwable) {
+    private CompletableFuture<Map<Long, CreatorProfile>> getCreatorProfilesBatchFallback(List<CreatorId> creatorIds, Throwable throwable) {
         if (throwable instanceof StatusRuntimeException statusException
                 && statusException.getStatus().getCode() == Status.Code.NOT_FOUND) {
             throw new CreatorNotFoundException();
