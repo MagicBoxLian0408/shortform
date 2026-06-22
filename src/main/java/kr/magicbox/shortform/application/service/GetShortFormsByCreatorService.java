@@ -29,7 +29,7 @@ public class GetShortFormsByCreatorService implements GetShortFormsByCreatorUseC
         List<ShortForm> shortForms = shortFormRepositoryPort.findByCreatorIdByCursor(
                 query.creatorId(), query.cursorId(), query.size() + 1);
 
-        CreatorProfileQueryPort.CreatorProfile profile = creatorProfileQueryPort.getCreatorProfile(query.creatorId());
+        CreatorProfileQueryPort.CreatorProfile profile = creatorProfileQueryPort.getCreatorProfile(query.creatorId()).join();
 
         List<ShortFormId> shortFormIds = shortForms.stream().map(ShortForm::getId).toList();
         Set<Long> likedIds = shortFormLikeRepositoryPort.findLikedShortFormIds(shortFormIds, query.userId());
