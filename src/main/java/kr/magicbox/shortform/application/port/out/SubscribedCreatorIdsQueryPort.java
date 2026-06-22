@@ -3,7 +3,8 @@ package kr.magicbox.shortform.application.port.out;
 import kr.magicbox.shortform.domain.vo.UserId;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface SubscribedCreatorIdsQueryPort {
-    List<Long> getSubscribedCreatorIds(UserId userId);
+    CompletableFuture<List<Long>> getSubscribedCreatorIds(UserId userId);
 }

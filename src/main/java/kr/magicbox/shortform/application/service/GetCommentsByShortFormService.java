@@ -31,7 +31,7 @@ public class GetCommentsByShortFormService implements GetCommentsByShortFormUseC
                 .distinct()
                 .toList();
 
-        Map<Long, String> nicknames = userNicknameQueryPort.getNicknamesBatch(userIds);
+        Map<Long, String> nicknames = userNicknameQueryPort.getNicknamesBatch(userIds).join();
 
         return comments.stream()
                 .map(comment -> CommentResult.builder()

@@ -1,8 +1,10 @@
 package kr.magicbox.shortform.adapter.out.communication.grpc;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.grpc.ManagedChannel;
-import io.grpc.StatusRuntimeException;
-import kr.magicbox.shortform.adapter.out.communication.grpc.exception.CreatorServiceUnavailableException;
+import kr.magicbox.shortform.adapter.out.communication.grpc.exception.SubscribeServiceUnavailableException;
 import kr.magicbox.shortform.application.port.out.SubscribedCreatorIdsQueryPort;
 import kr.magicbox.shortform.domain.vo.UserId;
 import kr.magicbox.shortform.grpc.subscribe.GetSubscribedCreatorIdsRequest;
@@ -15,7 +17,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @RequiredArgsConstructor
@@ -27,20 +29,30 @@ public class SubscribeGrpcAdapter implements SubscribedCreatorIdsQueryPort {
 
     @Override
     @Cacheable(value = "subscribed-creators", key = "#userId.value()")
-    public List<Long> getSubscribedCreatorIds(UserId userId) {
+    @CircuitBreaker(name = "subscribeService", fallbackMethod = "getSubscribedCreatorIdsFallback")
+    @TimeLimiter(name = "subscribeService", fallbackMethod = "getSubscribedCreatorIdsFallback")
+    public CompletableFuture<List<Long>> getSubscribedCreatorIds(UserId userId) {
         GetSubscribedCreatorIdsRequest request = GetSubscribedCreatorIdsRequest.newBuilder()
                 .setUserId(userId.value())
                 .build();
 
-        SubscribeServiceGrpc.SubscribeServiceBlockingStub stub = SubscribeServiceGrpc.newBlockingStub(subscribeManagedChannel)
-                .withDeadlineAfter(2, TimeUnit.SECONDS);
+        SubscribeServiceGrpc.SubscribeServiceFutureStub stub = SubscribeServiceGrpc.newFutureStub(subscribeManagedChannel);
+        ListenableFuture<GetSubscribedCreatorIdsResponse> future = stub.getSubscribedCreatorIds(request);
 
-        try {
-            GetSubscribedCreatorIdsResponse response = stub.getSubscribedCreatorIds(request);
-            return response.getCreatorIdsList();
-        } catch (StatusRuntimeException e) {
-            log.warn("구독 서비스 연결 실패: {}", e.getStatus());
-            throw new CreatorServiceUnavailableException(e);
-        }
+        CompletableFuture<List<Long>> result = new CompletableFuture<>();
+        future.addListener(() -> {
+            try {
+                result.complete(future.get().getCreatorIdsList());
+            } catch (Exception e) {
+                result.completeExceptionally(e);
+            }
+        }, Runnable::run);
+        return result;
+    }
+
+    @SuppressWarnings("unused")
+    private CompletableFuture<List<Long>> getSubscribedCreatorIdsFallback(UserId userId, Throwable throwable) {
+        log.warn("구독 서비스 연결 실패");
+        throw new SubscribeServiceUnavailableException(throwable);
     }
 }

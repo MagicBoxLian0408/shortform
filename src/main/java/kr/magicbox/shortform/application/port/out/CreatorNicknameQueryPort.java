@@ -2,6 +2,8 @@ package kr.magicbox.shortform.application.port.out;
 
 import kr.magicbox.shortform.domain.vo.CreatorId;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface CreatorNicknameQueryPort {
-    String getCreatorNickname(CreatorId creatorId);
+    CompletableFuture<String> getCreatorNickname(CreatorId creatorId);
 }

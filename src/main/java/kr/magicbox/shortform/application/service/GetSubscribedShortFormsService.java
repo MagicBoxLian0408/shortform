@@ -31,7 +31,7 @@ public class GetSubscribedShortFormsService implements GetSubscribedShortFormsUs
     @Override
     @Transactional(readOnly = true)
     public List<ShortFormResult> getSubscribedShortForms(GetSubscribedShortFormsQuery query) {
-        List<Long> creatorIds = subscribedCreatorIdsQueryPort.getSubscribedCreatorIds(query.userId());
+        List<Long> creatorIds = subscribedCreatorIdsQueryPort.getSubscribedCreatorIds(query.userId()).join();
         if (creatorIds.isEmpty()) {
             return Collections.emptyList();
         }
