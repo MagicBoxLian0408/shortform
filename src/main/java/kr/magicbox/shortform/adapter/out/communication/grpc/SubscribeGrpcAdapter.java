@@ -1,6 +1,5 @@
 package kr.magicbox.shortform.adapter.out.communication.grpc;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.grpc.ManagedChannel;
@@ -8,7 +7,6 @@ import kr.magicbox.shortform.adapter.out.communication.grpc.exception.SubscribeS
 import kr.magicbox.shortform.application.port.out.SubscribedCreatorIdsQueryPort;
 import kr.magicbox.shortform.domain.vo.UserId;
 import kr.magicbox.shortform.grpc.subscribe.GetSubscribedCreatorIdsRequest;
-import kr.magicbox.shortform.grpc.subscribe.GetSubscribedCreatorIdsResponse;
 import kr.magicbox.shortform.grpc.subscribe.SubscribeServiceGrpc;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +17,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class SubscribeGrpcAdapter implements SubscribedCreatorIdsQueryPort {
 
     @Qualifier("subscribeManagedChannel")
@@ -32,22 +30,11 @@ public class SubscribeGrpcAdapter implements SubscribedCreatorIdsQueryPort {
     @CircuitBreaker(name = "subscribeService", fallbackMethod = "getSubscribedCreatorIdsFallback")
     @TimeLimiter(name = "subscribeService", fallbackMethod = "getSubscribedCreatorIdsFallback")
     public CompletableFuture<List<Long>> getSubscribedCreatorIds(UserId userId) {
-        GetSubscribedCreatorIdsRequest request = GetSubscribedCreatorIdsRequest.newBuilder()
-                .setUserId(userId.value())
-                .build();
-
-        SubscribeServiceGrpc.SubscribeServiceFutureStub stub = SubscribeServiceGrpc.newFutureStub(subscribeManagedChannel);
-        ListenableFuture<GetSubscribedCreatorIdsResponse> future = stub.getSubscribedCreatorIds(request);
-
-        CompletableFuture<List<Long>> result = new CompletableFuture<>();
-        future.addListener(() -> {
-            try {
-                result.complete(future.get().getCreatorIdsList());
-            } catch (Exception e) {
-                result.completeExceptionally(e);
-            }
-        }, Runnable::run);
-        return result;
+        return GrpcFutures.toCompletable(
+                SubscribeServiceGrpc.newFutureStub(subscribeManagedChannel).getSubscribedCreatorIds(
+                        GetSubscribedCreatorIdsRequest.newBuilder().setUserId(userId.value()).build()
+                )
+        ).thenApply(response -> response.getCreatorIdsList());
     }
 
     @SuppressWarnings("unused")
