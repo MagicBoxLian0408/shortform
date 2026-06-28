@@ -44,7 +44,7 @@ public class GetSubscribedShortFormsService implements GetSubscribedShortFormsUs
                 .distinct()
                 .toList();
         Map<Long, CreatorProfileQueryPort.CreatorProfile> profiles =
-                creatorProfileQueryPort.getCreatorProfilesBatch(distinctCreatorIds);
+                creatorProfileQueryPort.getCreatorProfilesBatch(distinctCreatorIds).join();
 
         List<ShortFormId> shortFormIds = shortForms.stream().map(ShortForm::getId).toList();
         Set<Long> likedIds = shortFormLikeRepositoryPort.findLikedShortFormIds(shortFormIds, query.userId());

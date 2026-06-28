@@ -25,7 +25,7 @@ public class GetShortFormService implements GetShortFormUseCase {
     public ShortFormResult getShortForm(GetShortFormQuery query) {
         ShortForm shortForm = shortFormRepositoryPort.findById(query.shortFormId())
                 .orElseThrow(ShortFormNotFoundException::new);
-        CreatorProfileQueryPort.CreatorProfile profile = creatorProfileQueryPort.getCreatorProfile(shortForm.getCreatorId());
+        CreatorProfileQueryPort.CreatorProfile profile = creatorProfileQueryPort.getCreatorProfile(shortForm.getCreatorId()).join();
         boolean isLiked = shortFormLikeRepositoryPort.existsByShortFormIdAndUserId(query.shortFormId(), query.userId());
         return ShortFormResult.from(shortForm, profile, isLiked);
     }

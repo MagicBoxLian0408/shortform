@@ -34,7 +34,7 @@ public class GetAllShortFormsService implements GetAllShortFormsUseCase {
                 .map(ShortForm::getCreatorId)
                 .distinct()
                 .toList();
-        Map<Long, CreatorProfileQueryPort.CreatorProfile> profiles = creatorProfileQueryPort.getCreatorProfilesBatch(creatorIds);
+        Map<Long, CreatorProfileQueryPort.CreatorProfile> profiles = creatorProfileQueryPort.getCreatorProfilesBatch(creatorIds).join();
 
         List<ShortFormId> shortFormIds = shortForms.stream().map(ShortForm::getId).toList();
         Set<Long> likedIds = shortFormLikeRepositoryPort.findLikedShortFormIds(shortFormIds, query.userId());
