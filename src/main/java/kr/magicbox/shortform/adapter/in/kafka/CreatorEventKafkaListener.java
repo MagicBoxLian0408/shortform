@@ -2,12 +2,15 @@ package kr.magicbox.shortform.adapter.in.kafka;
 
 import kr.magicbox.shortform.adapter.in.kafka.annotation.Idempotent;
 import kr.magicbox.shortform.adapter.in.kafka.event.CreatorRevokedEvent;
+import kr.magicbox.shortform.adapter.out.persistence.entity.ShortFormInboxEntity;
+import kr.magicbox.shortform.adapter.out.persistence.repository.ShortFormInboxRepository;
 import kr.magicbox.shortform.application.dto.command.HandleCreatorRevokedCommand;
 import kr.magicbox.shortform.application.port.in.HandleCreatorRevokedUseCase;
 import kr.magicbox.shortform.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.kafka.retrytopic.DltStrategy;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CreatorEventKafkaListener {
     private final HandleCreatorRevokedUseCase handleCreatorRevokedUseCase;
+    private final ShortFormInboxRepository shortFormInboxRepository;
 
     @Idempotent
     @RetryableTopic(dltStrategy = DltStrategy.FAIL_ON_ERROR, dltTopicSuffix = "-dlt", exclude = {BusinessException.class})
@@ -25,5 +29,12 @@ public class CreatorEventKafkaListener {
     public void handleCreatorRevokedEvent(ConsumerRecord<String, CreatorRevokedEvent> consumerRecord) {
         CreatorRevokedEvent event = consumerRecord.value();
         handleCreatorRevokedUseCase.handleCreatorRevoked(HandleCreatorRevokedCommand.of(event.creatorId()));
+    }
+
+    @DltHandler
+    public void handleDlt(ConsumerRecord<String, ?> consumerRecord) {
+        log.error("[Inbox] DLT 전환. topic={}, partition={}, offset={}", consumerRecord.topic(), consumerRecord.partition(), consumerRecord.offset());
+        shortFormInboxRepository.findByTopicAndPartitionAndOffset(consumerRecord.topic(), consumerRecord.partition(), consumerRecord.offset())
+                .ifPresent(ShortFormInboxEntity::markDeadLettered);
     }
 }

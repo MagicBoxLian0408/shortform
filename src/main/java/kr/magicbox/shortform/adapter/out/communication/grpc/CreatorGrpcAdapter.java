@@ -88,26 +88,6 @@ public class CreatorGrpcAdapter implements CreatorIdQueryPort, CreatorNicknameQu
     }
 
     @SuppressWarnings("unused")
-    private CompletableFuture<CreatorProfile> getCreatorProfileFallback(CreatorId creatorId, Throwable throwable) {
-        if (throwable instanceof StatusRuntimeException statusException
-                && statusException.getStatus().getCode() == Status.Code.NOT_FOUND) {
-            throw new CreatorNotFoundException();
-        }
-        log.warn("크리에이터 서비스 연결 실패");
-        throw new CreatorServiceUnavailableException(throwable);
-    }
-
-    @SuppressWarnings("unused")
-    private CompletableFuture<Map<Long, CreatorProfile>> getCreatorProfilesBatchFallback(List<CreatorId> creatorIds, Throwable throwable) {
-        if (throwable instanceof StatusRuntimeException statusException
-                && statusException.getStatus().getCode() == Status.Code.NOT_FOUND) {
-            throw new CreatorNotFoundException();
-        }
-        log.warn("크리에이터 서비스 연결 실패");
-        throw new CreatorServiceUnavailableException(throwable);
-    }
-
-    @SuppressWarnings("unused")
     private CompletableFuture<CreatorId> getCreatorIdFallback(UserId userId, Throwable throwable) {
         if (throwable instanceof StatusRuntimeException statusException
                 && statusException.getStatus().getCode() == Status.Code.NOT_FOUND) {
@@ -119,6 +99,26 @@ public class CreatorGrpcAdapter implements CreatorIdQueryPort, CreatorNicknameQu
 
     @SuppressWarnings("unused")
     private CompletableFuture<String> getCreatorNicknameFallback(CreatorId creatorId, Throwable throwable) {
+        if (throwable instanceof StatusRuntimeException statusException
+                && statusException.getStatus().getCode() == Status.Code.NOT_FOUND) {
+            throw new CreatorNotFoundException();
+        }
+        log.warn("크리에이터 서비스 연결 실패");
+        throw new CreatorServiceUnavailableException(throwable);
+    }
+
+    @SuppressWarnings("unused")
+    private CompletableFuture<CreatorProfile> getCreatorProfileFallback(CreatorId creatorId, Throwable throwable) {
+        if (throwable instanceof StatusRuntimeException statusException
+                && statusException.getStatus().getCode() == Status.Code.NOT_FOUND) {
+            throw new CreatorNotFoundException();
+        }
+        log.warn("크리에이터 서비스 연결 실패");
+        throw new CreatorServiceUnavailableException(throwable);
+    }
+
+    @SuppressWarnings("unused")
+    private CompletableFuture<Map<Long, CreatorProfile>> getCreatorProfilesBatchFallback(List<CreatorId> creatorIds, Throwable throwable) {
         if (throwable instanceof StatusRuntimeException statusException
                 && statusException.getStatus().getCode() == Status.Code.NOT_FOUND) {
             throw new CreatorNotFoundException();
